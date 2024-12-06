@@ -99,11 +99,16 @@ export class PostService {
     try {
       // User permission can be checked here if not handled by Roles
 
+      let localImageAddr: string | null = null;
+      if (postInfo.imageUrl && postInfo.imageUrl.trim() !== '') {
+        localImageAddr = await this.downloadImage(postInfo.imageUrl);
+      }
+
       const post = new Post(
         null,
         postInfo.title,
         postInfo.content,
-        postInfo.imageUrl,
+        localImageAddr,
         null,
       );
       const updatedPost = await this.postRepository.updatePost(postId, post);
