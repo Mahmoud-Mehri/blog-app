@@ -9,6 +9,6 @@ export class UpdatePostDto {
   content: string;
 
   @IsString()
-  @Length(3, 255)
+  @Length(0, 255)
   imageUrl: string;
 }
