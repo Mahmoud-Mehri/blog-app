@@ -37,15 +37,15 @@ export class PostRepository implements IPostRepository {
       const obj = {
         title: postInfo.title,
         content: postInfo.content,
-        imageUrl: postInfo.imageUrl,
+        imageUrl: postInfo.image,
         userId: postInfo.userId,
       };
-      this.logger.debug('Before Creating 2:', postInfo.imageUrl);
+      this.logger.debug('Before Creating 2:', postInfo.image);
       const newPost = await PostModel.create(
         {
           title: postInfo.title,
           content: postInfo.content,
-          imageUrl: postInfo.imageUrl,
+          imageUrl: postInfo.image,
           userId: postInfo.userId,
         },
         { omitNull: true, returning: true },
@@ -71,7 +71,7 @@ export class PostRepository implements IPostRepository {
         {
           title: postInfo.title,
           content: postInfo.content,
-          imageUrl: postInfo.imageUrl,
+          imageUrl: postInfo.image,
         },
         { omitNull: true, returning: true },
       );
