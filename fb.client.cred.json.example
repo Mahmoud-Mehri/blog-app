@@ -1,9 +1,9 @@
 {
-  "apiKey": "AIzaSyARQo7dIFayAm5VarRogLSmgmQ13qH",
+  "apiKey": "abcdefghijkl",
   "authDomain": "test-app-ct7e4.firebaseapp.com",
   "projectId": "test-app-ct7e4",
   "storageBucket": "test-app-ct7e4.firebasestorage.app",
   "messagingSenderId": "647082475",
-  "appId": "1:646083975:web:364b2d78830b5f5714cf22",
+  "appId": "1:646083975:web:1234567890",
   "measurementId": "G-DG66W9FBWM"
 }
