@@ -18,7 +18,7 @@ export class PostRepository implements IPostRepository {
       post.id.toString(),
       post.title,
       post.content,
-      post.imageUrl,
+      post.image,
       post.userId,
     );
   }
@@ -33,24 +33,15 @@ export class PostRepository implements IPostRepository {
 
   async createPost(postInfo: Partial<Post>): Promise<Post> {
     try {
-      this.logger.debug('Before Creating:', JSON.stringify(postInfo));
-      const obj = {
-        title: postInfo.title,
-        content: postInfo.content,
-        imageUrl: postInfo.image,
-        userId: postInfo.userId,
-      };
-      this.logger.debug('Before Creating 2:', postInfo.image);
       const newPost = await PostModel.create(
         {
           title: postInfo.title,
           content: postInfo.content,
-          imageUrl: postInfo.image,
+          image: postInfo.image,
           userId: postInfo.userId,
         },
         { omitNull: true, returning: true },
       );
-      this.logger.debug('After Creating:', JSON.stringify(newPost));
 
       return this.PostFromModel(newPost);
     } catch (err) {
@@ -71,7 +62,7 @@ export class PostRepository implements IPostRepository {
         {
           title: postInfo.title,
           content: postInfo.content,
-          imageUrl: postInfo.image,
+          image: postInfo.image,
         },
         { omitNull: true, returning: true },
       );

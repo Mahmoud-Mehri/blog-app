@@ -14,7 +14,7 @@ export class PostModel extends Model<
   declare id: CreationOptional<number>;
   declare title: string;
   declare content: string;
-  declare imageUrl: string;
+  declare image: string;
   declare userId: string;
   declare createdAt?: CreationOptional<Date>;
   declare updatedAt?: CreationOptional<Date>;
@@ -36,7 +36,7 @@ export function InitPostModel(sequelize: Sequelize) {
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      imageUrl: {
+      image: {
         type: DataTypes.STRING(255),
         allowNull: true,
       },
