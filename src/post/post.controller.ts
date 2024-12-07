@@ -17,6 +17,7 @@ import { PostService } from './post.service';
 import { PagingDto, Roles } from 'src/common/types';
 import { CreatePostDto } from './dto/post.create.dto';
 import { Response } from 'express';
+import { UpdatePostDto } from './dto/post.update.dto';
 
 @Controller('posts')
 @UseGuards(AuthGuard, RoleGuard)
@@ -40,7 +41,7 @@ export class PostController {
   @Roles('admin', 'author')
   async updatePost(
     @Request() request: any,
-    @Body() postInfo: CreatePostDto,
+    @Body() postInfo: UpdatePostDto,
     @Param('id') postId: string,
     @Res({ passthrough: true }) response: Response,
   ) {
