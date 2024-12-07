@@ -10,6 +10,7 @@ import { CreatePostDto } from './dto/post.create.dto';
 import { PagingDto, ServiceResponse } from 'src/common/types';
 import { errorResponse, successResponse } from 'src/common/utils';
 import { Post } from './model/models';
+import { UpdatePostDto } from './dto/post.update.dto';
 
 @Injectable()
 export class PostService {
@@ -22,44 +23,64 @@ export class PostService {
 
   async downloadImage(imageUrl: string): Promise<string | null> {
     try {
+      let redirectCount = 0;
       const imageDir = path.join(process.cwd(), 'images');
       await fsp.mkdir(imageDir, { recursive: true });
 
-      const fileExt = path.extname(new URL(imageUrl).pathname);
-      const uuid = crypto.randomUUID();
-      const filename = `${uuid}${fileExt}`;
-      const filePath = path.join(imageDir, filename);
+      return new Promise((resolve, reject) => {
+        const downloadWithRedirect = (url: string) => {
+          const fileExt = path.extname(new URL(url).pathname);
+          const uuid = crypto.randomUUID();
+          const filename = `${uuid}${fileExt}`;
+          const filePath = path.join(imageDir, filename);
 
-      await new Promise((resolve, reject) => {
-        const client = imageUrl.startsWith('https') ? https : http;
-        const request = client.get(imageUrl, (response) => {
-          if (response.statusCode !== 200) {
-            reject(new Error(`Image Download Failed: ${response.statusCode}`));
+          const client = url.startsWith('https') ? https : http;
+          const request = client.get(url, (response) => {
+            if ([301, 302, 307, 308].includes(response.statusCode)) {
+              // Handling redirects
+              redirectCount++;
+              if (redirectCount > 3) {
+                reject(new Error('Too many requests'));
+                return;
+              }
+              this.logger.log(
+                `Redirect - ${redirectCount}:`,
+                response.headers.location,
+              );
 
-            return;
-          }
+              return downloadWithRedirect(response.headers.location);
+            }
 
-          const fileStream = fs.createWriteStream(filePath);
-          response.pipe(fileStream);
+            if (response.statusCode !== 200) {
+              reject(
+                new Error(
+                  `Image Download Failed - ${response.statusCode} - ${response.statusMessage}`,
+                ),
+              );
+            }
 
-          fileStream.on('finish', () => {
-            fileStream.close();
-            resolve(true);
+            const fileStream = fs.createWriteStream(filePath);
+            response.pipe(fileStream);
+
+            fileStream.on('finish', () => {
+              fileStream.close();
+              resolve(filePath);
+            });
+
+            fileStream.on('error', (err) => {
+              reject(err);
+            });
           });
 
-          fileStream.on('error', (err) => {
+          request.on('error', (err) => {
             reject(err);
           });
-        });
+        };
 
-        request.on('error', (err) => {
-          reject(err);
-        });
+        downloadWithRedirect(imageUrl);
       });
-
-      return filePath;
     } catch (err) {
-      this.logger.error('Image Download Failed:', err);
+      this.logger.error('Image Download Error:', err);
       return null;
     }
   }
@@ -94,7 +115,7 @@ export class PostService {
   async updatePost(
     userId: string,
     postId: string,
-    postInfo: CreatePostDto,
+    postInfo: UpdatePostDto,
   ): Promise<ServiceResponse> {
     try {
       // User permission can be checked here if not handled by Roles
